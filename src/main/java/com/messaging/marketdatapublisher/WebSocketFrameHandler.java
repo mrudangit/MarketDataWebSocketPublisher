@@ -1,5 +1,6 @@
 package com.messaging.marketdatapublisher;
 
+import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -19,6 +20,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ConcurrentHashMap<String , MarketDataClient> clients = new ConcurrentHashMap<>();
+    private Gson gson = new Gson();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
@@ -54,6 +56,12 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             // Send the uppercase string back.
             String request = ((TextWebSocketFrame) frame).text();
             this.logger.info("Message From Client : {}", request);
+            String clientId = ctx.channel().id().asLongText();
+            ClientLoginInfo clientLoginInfo = gson.fromJson(request, ClientLoginInfo.class);
+            this.logger.info("Client : {} Login Info : {} ", clientId, clientLoginInfo);
+            MarketDataClient marketDataClient = this.clients.get(clientId);
+            marketDataClient.Login(clientLoginInfo);
+
 
         }
 
