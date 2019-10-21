@@ -150,4 +150,35 @@ public class MarketData {
     }
 
 
+    public void generateMarketData(){
+        MarketData m = this;
+        m.mid      = 100*random.nextDouble();
+
+        m.askPrice0 = 100*random.nextDouble();
+        m.askPrice1 = 100*random.nextDouble();
+        m.askPrice2 = 100*random.nextDouble();
+        m.askPrice3 = 100*random.nextDouble();
+        m.askPrice4 = 100*random.nextDouble();
+
+        m.bidPrice0 = 100*random.nextDouble();
+        m.bidPrice1 = 100*random.nextDouble();
+        m.bidPrice2 = 100*random.nextDouble();
+        m.bidPrice3 = 100*random.nextDouble();
+        m.bidPrice4 = 100*random.nextDouble();
+
+        m.askSize0 = (long) (100*random.nextDouble());
+        m.askSize1 = (long) (100*random.nextDouble());
+        m.askSize2 = (long) (100*random.nextDouble());
+        m.askSize3 = (long) (100*random.nextDouble());
+        m.askSize4 = (long) (100*random.nextDouble());
+
+        m.bidSize0 = (long) (100*random.nextDouble());
+        m.bidSize1 = (long) (100*random.nextDouble());
+        m.bidSize2 = (long) (100*random.nextDouble());
+        m.bidSize3 = (long) (100*random.nextDouble());
+        m.bidSize4 = (long) (100*random.nextDouble());
+
+    }
+
+
 }

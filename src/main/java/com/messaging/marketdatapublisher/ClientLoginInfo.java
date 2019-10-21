@@ -20,6 +20,7 @@ public class ClientLoginInfo {
     public long numOfMarketDataRecords;
     public int  updatePercentage;
     public int  marketDataSnapShotSize;
+    public int updateFrequency;
 
 
     public boolean sendOrders;
