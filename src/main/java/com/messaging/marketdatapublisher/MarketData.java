@@ -12,7 +12,11 @@ public class MarketData {
     private static long counter=0;
     private static Random random = new Random();
 
-    public static final int SIZE = 216;
+    public static final int SIZE = 236;
+
+    public final int index; // 4
+
+
     public String symbol;   // 40
     public long symbolId;   // 8
     public double mid;      // 8
@@ -41,6 +45,18 @@ public class MarketData {
     public long bidSize2;
     public long bidSize3;
     public long bidSize4;
+
+    public long revisionId;
+
+    public double spread;
+
+
+    public MarketData(int index){
+        this.index = index;
+    }
+
+
+
     @Override
     public String toString() {
         return "MarketData{" +
@@ -77,6 +93,7 @@ public class MarketData {
         ByteBuffer buffer = ByteBuffer.allocate(MarketData.SIZE);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
+        buffer.putInt(this.index);
         byte[] bytes = this.symbol.getBytes();
         buffer.put(bytes);
         buffer.putLong(this.symbolId);
@@ -106,6 +123,9 @@ public class MarketData {
         buffer.putLong(this.bidSize3);
         buffer.putLong(this.bidSize4);
 
+        buffer.putLong(this.revisionId);
+        buffer.putDouble(this.spread);
+
         return buffer.array();
 
     }
@@ -114,10 +134,10 @@ public class MarketData {
         return   String.format("%-" + length + "." + length + "s", string);
     }
 
-    public static MarketData createInstance() {
-        MarketData m = new MarketData();
+    public static MarketData createInstance(int index) {
+        MarketData m = new MarketData(index);
         m.symbol = RandomStringUtils.randomAlphabetic(40);
-        m.symbolId = random.nextLong();
+        m.symbolId = Math.abs(random.nextLong());
         m.mid      = 100*random.nextDouble();
 
         m.askPrice0 = 100*random.nextDouble();
@@ -144,6 +164,9 @@ public class MarketData {
         m.bidSize3 = (long) (100*random.nextDouble());
         m.bidSize4 = (long) (100*random.nextDouble());
 
+        m.revisionId = 0;
+
+        m.spread = 100*random.nextDouble();
 
 
         return m;
@@ -152,7 +175,7 @@ public class MarketData {
 
     public void generateMarketData(){
         MarketData m = this;
-        m.mid      = 100*random.nextDouble();
+
 
         m.askPrice0 = 100*random.nextDouble();
         m.askPrice1 = 100*random.nextDouble();
@@ -177,6 +200,11 @@ public class MarketData {
         m.bidSize2 = (long) (100*random.nextDouble());
         m.bidSize3 = (long) (100*random.nextDouble());
         m.bidSize4 = (long) (100*random.nextDouble());
+
+        m.revisionId++;
+        m.mid      = ((bidPrice0 + askPrice0) / 2);
+
+        m.spread = askPrice0 - bidPrice0;
 
     }
 

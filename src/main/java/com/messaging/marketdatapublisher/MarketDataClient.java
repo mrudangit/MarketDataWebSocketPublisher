@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Random;
@@ -52,13 +53,14 @@ public class MarketDataClient {
 
         this.clientLoginInfo = clientLoginInfo;
         this.numOfUpdates = (int) Math.floor ((this.clientLoginInfo.marketDataSnapShotSize*this.clientLoginInfo.updatePercentage)/100.0);
+        this.logger.info("Number of Update = {}", this.numOfUpdates);
         this.createMarketDataRecords();
         this.startPumping();
     }
 
     private void createMarketDataRecords() {
         for(int i =0; i < this.clientLoginInfo.marketDataSnapShotSize;i ++){
-            MarketData instance = MarketData.createInstance();
+            MarketData instance = MarketData.createInstance(i);
             this.marketDataSnapShot.put(instance.symbolId, instance);
         }
 
@@ -67,9 +69,11 @@ public class MarketDataClient {
 
     private void startPumping(){
         sendMarketDataSnapShot();
+
+
         if(this.clientLoginInfo.sendMarketDataUpdates){
 
-            this.marketDataUpdatesTimer = Flux.interval(Duration.ofMillis(this.clientLoginInfo.updateFrequency)).subscribe(aLong -> {
+            this.marketDataUpdatesTimer = Flux.interval(Duration.ofMillis(2000), Duration.ofMillis(this.clientLoginInfo.updateFrequency)).subscribe(aLong -> {
                 this.sendMarketDataUpdates();
             });
 
@@ -81,23 +85,26 @@ public class MarketDataClient {
 
     private void sendMarketDataSnapShot() {
 
-
+        ByteBuffer buffer = ByteBuffer.allocate(this.clientLoginInfo.marketDataSnapShotSize*MarketData.SIZE);
         this.marketDataSnapShot.values().forEach(marketData -> {
-            this.context.channel().writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(marketData.toBinary())));
+            marketData.generateMarketData();
+            buffer.put(marketData.toBinary());
         });
-
+        this.context.channel().writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buffer.array())));
     }
 
     private void sendMarketDataUpdates() {
+
+        ByteBuffer buffer = ByteBuffer.allocate(this.numOfUpdates*MarketData.SIZE);
 
 
         for(int i=0;i < this.numOfUpdates;i++){
 
             MarketData instance = (MarketData) this.marketDataArray[random.nextInt(this.marketDataArray.length)];
             instance.generateMarketData();
-            this.logger.info("Sending Market Data : {}", instance.toString());
-            this.context.channel().writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(instance.toBinary())));
-        }
+            buffer.put(instance.toBinary());
 
+        }
+        this.context.channel().writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buffer.array())));
     }
 }
