@@ -1,5 +1,7 @@
 package com.messaging.marketdatapublisher;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.nio.ByteBuffer;
@@ -9,12 +11,48 @@ import java.util.Random;
 
 public class MarketData {
 
+
+    public static final int  INDEX_OFFSET=0;
+    public static final int SYMBOL_OFFSET=4;
+    public static final int SYMBOL_ID_OFFSET=44;
+    public static final int MID_OFFSET=52;
+
+    public static final int ASKPRICE0_OFFSET=60;
+    public static final int ASKPRICE1_OFFSET=68;
+    public static final int ASKPRICE2_OFFSET=76;
+    public static final int ASKPRICE3_OFFSET=84;
+    public static final int ASKPRICE4_OFFSET=92;
+
+    public static final int BIDPRICE0_OFFSET=100;
+    public static final int BIDPRICE1_OFFSET=108;
+    public static final int BIDPRICE2_OFFSET=116;
+    public static final int BIDPRICE3_OFFSET=124;
+    public static final int BIDPRICE4_OFFSET=132;
+
+    public static final int ASKSIZE0_OFFSET=140;
+    public static final int ASKSIZE1_OFFSET=148;
+    public static final int ASKSIZE2_OFFSET=156;
+    public static final int ASKSIZE3_OFFSET=164;
+    public static final int ASKSIZE4_OFFSET=172;
+
+
+    public static final int BIDSIZE0_OFFSET=180;
+    public static final int BIDSIZE1_OFFSET=188;
+    public static final int BIDSIZE2_OFFSET=196;
+    public static final int BIDSIZE3_OFFSET=204;
+    public static final int BIDSIZE4_OFFSET=212;
+
+
+    public static final int REVISIONID_OFFSET = 220;
+    public static final int SPREAD_OFFSET = 228;
+
     private static long counter=0;
     private static Random random = new Random();
 
     public static final int SIZE = 236;
 
     public final int index; // 4
+    private final ByteBuf marketDataBuffer;
 
 
     public String symbol;   // 40
@@ -52,7 +90,10 @@ public class MarketData {
 
 
     public MarketData(int index){
+
         this.index = index;
+        this.marketDataBuffer = Unpooled.buffer(MarketData.SIZE, MarketData.SIZE);
+
     }
 
 
@@ -86,7 +127,46 @@ public class MarketData {
                 '}';
     }
 
+    public byte[] toBinaryByteBuf(){
 
+        this.marketDataBuffer.setIntLE(INDEX_OFFSET,index);
+        this.marketDataBuffer.setBytes(SYMBOL_OFFSET, this.symbol.getBytes());
+        this.marketDataBuffer.setLongLE(SYMBOL_ID_OFFSET, symbolId);
+
+        this.marketDataBuffer.setDoubleLE(MID_OFFSET, mid);
+
+        this.marketDataBuffer.setDoubleLE(ASKPRICE0_OFFSET, askPrice0);
+        this.marketDataBuffer.setDoubleLE(ASKPRICE1_OFFSET, askPrice1);
+        this.marketDataBuffer.setDoubleLE(ASKPRICE2_OFFSET, askPrice2);
+        this.marketDataBuffer.setDoubleLE(ASKPRICE3_OFFSET, askPrice3);
+        this.marketDataBuffer.setDoubleLE(ASKPRICE4_OFFSET, askPrice4);
+
+        this.marketDataBuffer.setDoubleLE(BIDPRICE0_OFFSET, bidPrice0);
+        this.marketDataBuffer.setDoubleLE(BIDPRICE1_OFFSET, bidPrice1);
+        this.marketDataBuffer.setDoubleLE(BIDPRICE2_OFFSET, bidPrice2);
+        this.marketDataBuffer.setDoubleLE(BIDPRICE3_OFFSET, bidPrice3);
+        this.marketDataBuffer.setDoubleLE(BIDPRICE4_OFFSET, bidPrice4);
+
+
+        this.marketDataBuffer.setLongLE(ASKSIZE0_OFFSET, askSize0);
+        this.marketDataBuffer.setLongLE(ASKSIZE1_OFFSET, askSize1);
+        this.marketDataBuffer.setLongLE(ASKSIZE2_OFFSET, askSize2);
+        this.marketDataBuffer.setLongLE(ASKSIZE3_OFFSET, askSize3);
+        this.marketDataBuffer.setLongLE(ASKSIZE4_OFFSET, askSize4);
+
+        this.marketDataBuffer.setLongLE(BIDSIZE0_OFFSET, bidSize0);
+        this.marketDataBuffer.setLongLE(BIDSIZE1_OFFSET, bidSize1);
+        this.marketDataBuffer.setLongLE(BIDSIZE2_OFFSET, bidSize2);
+        this.marketDataBuffer.setLongLE(BIDSIZE3_OFFSET, bidSize3);
+        this.marketDataBuffer.setLongLE(BIDSIZE4_OFFSET, bidSize4);
+
+        this.marketDataBuffer.setLongLE(REVISIONID_OFFSET, revisionId);
+        this.marketDataBuffer.setDoubleLE(SPREAD_OFFSET, spread);
+
+
+
+        return this.marketDataBuffer.array();
+    }
 
 
     public byte[] toBinary(){

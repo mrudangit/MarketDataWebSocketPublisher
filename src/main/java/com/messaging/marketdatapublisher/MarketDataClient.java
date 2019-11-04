@@ -1,5 +1,6 @@
 package com.messaging.marketdatapublisher;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -85,26 +86,34 @@ public class MarketDataClient {
 
     private void sendMarketDataSnapShot() {
 
-        ByteBuffer buffer = ByteBuffer.allocate(this.clientLoginInfo.marketDataSnapShotSize*MarketData.SIZE);
+        ByteBuf buffer = Unpooled.buffer (this.clientLoginInfo.marketDataSnapShotSize*MarketData.SIZE,this.clientLoginInfo.marketDataSnapShotSize*MarketData.SIZE);
         this.marketDataSnapShot.values().forEach(marketData -> {
             marketData.generateMarketData();
-            buffer.put(marketData.toBinary());
+            buffer.writeBytes(marketData.toBinaryByteBuf());
         });
-        this.context.channel().writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buffer.array())));
+        this.context.channel().writeAndFlush(new BinaryWebSocketFrame(buffer));
+
+        assert buffer.refCnt() == 0;
+
+
+
     }
 
     private void sendMarketDataUpdates() {
 
-        ByteBuffer buffer = ByteBuffer.allocate(this.numOfUpdates*MarketData.SIZE);
+        ByteBuf buffer = Unpooled.buffer (this.numOfUpdates*MarketData.SIZE,this.numOfUpdates*MarketData.SIZE);
+
 
 
         for(int i=0;i < this.numOfUpdates;i++){
 
             MarketData instance = (MarketData) this.marketDataArray[random.nextInt(this.marketDataArray.length)];
             instance.generateMarketData();
-            buffer.put(instance.toBinary());
+            buffer.writeBytes(instance.toBinaryByteBuf());
 
         }
-        this.context.channel().writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buffer.array())));
+        this.context.channel().writeAndFlush(new BinaryWebSocketFrame(buffer));
+
+        assert buffer.refCnt() == 0;
     }
 }
