@@ -23,3 +23,11 @@ export class LoginInfo{
   public newOrderInterval= 0
 }
 ```
+
+
+User sister repo to consume the data
+
+https://github.com/mrudangit/MarketMonitor
+
+
+
