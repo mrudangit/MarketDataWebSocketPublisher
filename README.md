@@ -9,7 +9,7 @@ WebSocket Path : host:port/marketData
 Connect via javascript WebSocket 
 After connection send Login Info JSON 
 
-
+```
 export class LoginInfo{
 
   public sendMarketDataSnapShot = false;
@@ -22,3 +22,4 @@ export class LoginInfo{
   public numOfNewOrders= 0;
   public newOrderInterval= 0
 }
+```
