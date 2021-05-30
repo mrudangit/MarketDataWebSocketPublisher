@@ -6,7 +6,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.Random;
 
 public class MarketData {
@@ -131,7 +130,7 @@ public class MarketData {
 
         this.marketDataBuffer.setIntLE(INDEX_OFFSET,index);
         this.marketDataBuffer.setBytes(SYMBOL_OFFSET, this.symbol.getBytes());
-        this.marketDataBuffer.setLongLE(SYMBOL_ID_OFFSET, symbolId);
+        this.marketDataBuffer.setLongLE(SYMBOL_ID_OFFSET, index);
 
         this.marketDataBuffer.setDoubleLE(MID_OFFSET, mid);
 

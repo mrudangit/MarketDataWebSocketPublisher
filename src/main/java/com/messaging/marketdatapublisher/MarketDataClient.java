@@ -1,5 +1,6 @@
 package com.messaging.marketdatapublisher;
 
+import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,6 +28,7 @@ public class MarketDataClient {
     private int numOfUpdates;
     private Random random = new Random();
     private Object[] marketDataArray;
+    private Gson gson = new Gson();
 
 
     public MarketDataClient(ChannelHandlerContext ctx) {
@@ -89,6 +91,7 @@ public class MarketDataClient {
         ByteBuf buffer = Unpooled.buffer (this.clientLoginInfo.marketDataSnapShotSize*MarketData.SIZE,this.clientLoginInfo.marketDataSnapShotSize*MarketData.SIZE);
         this.marketDataSnapShot.values().forEach(marketData -> {
             marketData.generateMarketData();
+
             buffer.writeBytes(marketData.toBinaryByteBuf());
         });
         this.context.channel().writeAndFlush(new BinaryWebSocketFrame(buffer));
